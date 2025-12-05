@@ -89,6 +89,6 @@ output "pubsub_subscription" {
 
 output "artifact_repo_url" {
   description = "URL del repositorio Docker en Artifact Registry"
-  value       = google_artifact_registry_repository.main.repository_url
+  value       = google_artifact_registry_repository.main.name
 }
 

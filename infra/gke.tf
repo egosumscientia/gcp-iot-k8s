@@ -44,7 +44,7 @@ resource "google_container_cluster" "primary" {
   ###############################
 
   networking_mode = "VPC_NATIVE"
-  datapath_provider = "ADVANCED"
+  datapath_provider = "ADVANCED_DATAPATH"
 
   logging_config {
     enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
