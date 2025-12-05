@@ -1,6 +1,6 @@
-# Proyecto IoT + Microservicios + Kubernetes en Google Cloud Platform (GCP)
+# Proyecto IoT + Microservicios + Kubernetes en Google Cloud Platform (GCP) utilizando Terraform (IaC)
 
-Plataforma demostrativa que procesa datos IoT usando microservicios desplegados en Google Kubernetes Engine (GKE), Pub/Sub como sistema de mensajería y Cloud SQL como base de datos. El despliegue es manual (sin CI/CD).
+Plataforma demostrativa que procesa datos IoT usando microservicios desplegados en Google Kubernetes Engine (GKE), Pub/Sub como sistema de mensajería y Cloud SQL como base de datos. El despliegue es manual (sin CI/CD). Se usa Terraform para la IaC.
 
 ## Objetivo
 Implementar una arquitectura funcional que:
