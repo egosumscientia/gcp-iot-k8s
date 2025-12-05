@@ -6,7 +6,7 @@ metadata:
   labels:
     app: makeauto-processor
 spec:
-  replicas: 1   # normalmente 1, pero se puede escalar si el worker es idempotente
+  replicas: 1
   selector:
     matchLabels:
       app: makeauto-processor
@@ -25,10 +25,7 @@ spec:
           env:
             # ---------- PROJECT ----------
             - name: PROJECT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: makeauto-config
-                  key: PROJECT_ID
+              value: "iot-k8s-petor"
 
             # ---------- CONFIGMAP ----------
             - name: PUBSUB_SUBSCRIPTION
@@ -62,7 +59,6 @@ spec:
                   name: makeauto-secrets
                   key: SQL_INSTANCE_CONNECTION_NAME
 
-          # Worker estandar - no expone puertos
           resources:
             requests:
               cpu: "100m"
@@ -71,7 +67,6 @@ spec:
               cpu: "200m"
               memory: "256Mi"
 
-          # Probes para workers (comprobar que el script sigue vivo)
           livenessProbe:
             exec:
               command: ["sh", "-c", "ps -o pid= -p 1"]

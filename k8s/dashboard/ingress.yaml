@@ -4,12 +4,11 @@ metadata:
   name: dashboard-ingress
   namespace: dashboard
   annotations:
-    kubernetes.io/ingress.class: "gce"    # GKE Ingress Controller
+    kubernetes.io/ingress.class: "gce"
     kubernetes.io/ingress.allow-http: "true"
 spec:
   rules:
-    - host: <TU_DOMINIO_OPCIONAL>   # Ej: dashboard.makeauto.cloud (opcional)
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
