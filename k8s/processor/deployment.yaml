@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processor-deployment
+  namespace: processor
+  labels:
+    app: makeauto-processor
+spec:
+  replicas: 1   # normalmente 1, pero se puede escalar si el worker es idempotente
+  selector:
+    matchLabels:
+      app: makeauto-processor
+  template:
+    metadata:
+      labels:
+        app: makeauto-processor
+    spec:
+      serviceAccountName: processor-sa
+
+      containers:
+        - name: processor
+          image: "<REGION>-docker.pkg.dev/<PROJECT_ID>/<REPO_NAME>/makeauto-processor:latest"
+          imagePullPolicy: Always
+
+          env:
+            # ---------- CONFIGMAP ----------
+            - name: PUBSUB_SUBSCRIPTION
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: PUBSUB_SUBSCRIPTION
+
+            - name: SQL_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: SQL_DB_NAME
+
+            # ---------- SECRETS ----------
+            - name: SQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_USER
+
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_PASSWORD
+
+            - name: SQL_INSTANCE_CONNECTION_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_INSTANCE_CONNECTION_NAME
+
+          # Worker estándar → no expone puertos
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+          # Probes para workers (comprobar que el script sigue vivo)
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "ps -o pid= -p 1"]
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
+      restartPolicy: Always

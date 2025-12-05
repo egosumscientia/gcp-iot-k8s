@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: makeauto-config
+  namespace: api
+data:
+  PUBSUB_TOPIC: "iot-events"
+  SQL_DB_NAME: "makeauto_db"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: makeauto-config
+  namespace: processor
+data:
+  PUBSUB_SUBSCRIPTION: "iot-events-sub"
+  SQL_DB_NAME: "makeauto_db"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: makeauto-config
+  namespace: dashboard
+data:
+  SQL_DB_NAME: "makeauto_db"

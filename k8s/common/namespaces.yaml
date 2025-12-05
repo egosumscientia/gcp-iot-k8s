@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: api
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: processor
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dashboard

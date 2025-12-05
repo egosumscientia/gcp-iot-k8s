@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  namespace: api
+  labels:
+    app: makeauto-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: makeauto-api
+  template:
+    metadata:
+      labels:
+        app: makeauto-api
+    spec:
+      serviceAccountName: api-sa
+      containers:
+        - name: api
+          image: "<REGION>-docker.pkg.dev/<PROJECT_ID>/<REPO_NAME>/makeauto-api:latest"
+          imagePullPolicy: Always
+          env:
+            # ----- CONFIGMAP -----
+            - name: PUBSUB_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: PUBSUB_TOPIC
+
+            # ----- SECRETS -----
+            - name: SQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_USER
+
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_PASSWORD
+
+            - name: SQL_INSTANCE_CONNECTION_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_INSTANCE_CONNECTION_NAME
+
+            # ----- VARIABLES DE RUNTIME -----
+            - name: PORT
+              value: "8080"
+
+          ports:
+            - containerPort: 8080
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"

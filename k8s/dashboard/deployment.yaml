@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-deployment
+  namespace: dashboard
+  labels:
+    app: makeauto-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: makeauto-dashboard
+  template:
+    metadata:
+      labels:
+        app: makeauto-dashboard
+    spec:
+      serviceAccountName: dashboard-sa
+      containers:
+        - name: dashboard
+          image: "<REGION>-docker.pkg.dev/<PROJECT_ID>/<REPO_NAME>/makeauto-dashboard:latest"
+          imagePullPolicy: Always
+
+          env:
+            # ---------- CONFIGMAP ----------
+            - name: SQL_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: SQL_DB_NAME
+
+            # ---------- SECRETS ----------
+            - name: SQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_USER
+
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_PASSWORD
+
+            - name: SQL_INSTANCE_CONNECTION_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: makeauto-secrets
+                  key: SQL_INSTANCE_CONNECTION_NAME
+
+            # ---------- Runtime ----------
+            - name: PORT
+              value: "8080"
+
+          ports:
+            - containerPort: 8080
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"

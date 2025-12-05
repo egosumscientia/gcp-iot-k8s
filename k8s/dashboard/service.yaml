@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-service
+  namespace: dashboard
+  labels:
+    app: makeauto-dashboard
+spec:
+  type: ClusterIP
+  selector:
+    app: makeauto-dashboard
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
