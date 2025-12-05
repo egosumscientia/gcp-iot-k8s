@@ -1,4 +1,20 @@
-# Python
+############################################
+# TERRAFORM
+############################################
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+############################################
+# PYTHON
+############################################
 __pycache__/
 *.pyc
 *.pyo
@@ -15,42 +31,71 @@ venv/
 env/
 .venv/
 
-# Editor/IDE
+############################################
+# EDITORES / IDE
+############################################
 .vscode/
 .idea/
 *.swp
 
-# Logs
+############################################
+# LOGS
+############################################
 *.log
 
-# Docker
+############################################
+# DOCKER
+############################################
 *.tar
 docker-compose.override.yml
 
-# Kubernetes
+############################################
+# KUBERNETES
+############################################
 *.yaml.tmp
 
-# GCP / Auth
+############################################
+# GCP / AUTH KEYS
+############################################
 *.json
 credentials.json
 key.json
 gcloud-service-key.json
 
+############################################
 # OS
+############################################
 .DS_Store
 Thumbs.db
 
-# Byte-compiled
-*.orig
-
-# Node (por si dashboard usa frontend)
+############################################
+# NODE / FRONTEND (por si dashboard usa UI)
+############################################
 node_modules/
 npm-debug.log
 yarn-error.log
 
-# HTML builds
+############################################
+# HTML BUILDS / BUNDLES
+############################################
 dist/
 build/
 
-# Misc
+############################################
+# MISC
+############################################
 tmp/
+*.orig
+
+############################################
+# MICROSERVICIOS
+############################################
+microservices/**/venv/
+microservices/**/.venv/
+microservices/**/__pycache__/
+
+############################################
+# DOCKER BUILDS POR MICROSERVICIO
+############################################
+microservices/**/build/
+microservices/**/dist/
