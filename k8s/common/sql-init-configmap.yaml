@@ -10,5 +10,6 @@ data:
       device_id TEXT NOT NULL,
       temperature FLOAT,
       humidity FLOAT,
-      created_at TIMESTAMP DEFAULT now()
+      timestamp TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT now()
     );
