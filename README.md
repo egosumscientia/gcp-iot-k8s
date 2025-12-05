@@ -1,47 +1,47 @@
-# Proyecto IoT + Microservicios + Kubernetes en Google Cloud Platform (GCP) utilizando Terraform (IaC)
+# Proyecto IoT + Microservicios + Kubernetes en GCP (Terraform IaC)
 
-Plataforma demostrativa que procesa datos IoT usando microservicios desplegados en Google Kubernetes Engine (GKE), Pub/Sub como sistema de mensajería y Cloud SQL como base de datos. El despliegue es manual (sin CI/CD). Se usa Terraform para la IaC.
+Plataforma demostrativa que procesa datos IoT con microservicios desplegados en Google Kubernetes Engine (GKE), Pub/Sub como bus de eventos y Cloud SQL como base de datos. El despliegue es manual (sin CI/CD) usando Terraform para la infraestructura.
 
 ## Objetivo
 Implementar una arquitectura funcional que:
 - Recibe datos IoT desde un cliente.
-- Los envía a Pub/Sub.
-- Los procesa mediante un microservicio trabajador.
+- Los envia a Pub/Sub.
+- Los procesa mediante un microservicio worker.
 - Los guarda en Cloud SQL.
-- Los expone mediante un Dashboard alojado en GKE.
+- Los expone mediante un Dashboard en GKE.
 
 ## Arquitectura
-Sensor → API → Pub/Sub → Processor → Cloud SQL → Dashboard → Usuario Final
+Sensor -> API -> Pub/Sub -> Processor -> Cloud SQL -> Dashboard -> Usuario Final
 
 ## Componentes del Proyecto
 ### API Service
-Microservicio en FastAPI que recibe eventos IoT vía HTTP.
+Microservicio en FastAPI que recibe eventos IoT via HTTP y los publica en Pub/Sub.
 
 ### Processor Service
-Microservicio en Python que recibe mensajes de Pub/Sub y escribe en Cloud SQL.
+Worker en Python que consume Pub/Sub y escribe en Cloud SQL.
 
 ### Dashboard Service
-Aplicación simple que consulta Cloud SQL y muestra los datos recientes.
+API simple que consulta Cloud SQL y expone lecturas recientes.
 
 ### Infraestructura en GCP
 - GKE (Google Kubernetes Engine)
 - Pub/Sub (topic y subscription)
 - Cloud SQL (PostgreSQL)
-- Artifact Registry para las imágenes
+- Artifact Registry para imagenes
 - Cloud Logging y Monitoring
 
 ## Estructura de Carpetas
-- microservices/api → código del servicio API
-- microservices/processor → código del procesador
-- microservices/dashboard → dashboard web
-- k8s/api → manifests de Kubernetes para API
-- k8s/processor → manifests de Processor
-- k8s/dashboard → manifests de Dashboard
-- k8s/common → configmaps, secrets, etc.
-- docs → documentación adicional
+- microservices/api: codigo del servicio API
+- microservices/processor: codigo del procesador
+- microservices/dashboard: API de dashboard
+- k8s/api: manifests de Kubernetes para API
+- k8s/processor: manifests de Processor
+- k8s/dashboard: manifests de Dashboard
+- k8s/common: configmaps, secrets, serviceaccounts, namespaces
+- docs: documentacion adicional
 
 ## Flujo General
-1. El sensor envía datos JSON a la API.
+1. El sensor envia datos JSON a la API.
 2. La API publica los datos en Pub/Sub.
 3. El Processor toma los mensajes y los escribe en Cloud SQL.
 4. El Dashboard consulta la base y los muestra en tiempo real.
@@ -51,18 +51,19 @@ Aplicación simple que consulta Cloud SQL y muestra los datos recientes.
 - Google Cloud SDK
 - Docker
 - kubectl
-- Proyecto de GCP con las APIs habilitadas:
+- Proyecto de GCP con APIs habilitadas:
   - Kubernetes Engine API
   - Cloud SQL Admin API
   - Pub/Sub API
+  - Artifact Registry API
 
 ## Despliegue Resumido
-1. Construir las imágenes Docker.
+1. Construir las imagenes Docker.
 2. Subirlas a Artifact Registry.
 3. Crear cluster GKE.
 4. Crear instancia Cloud SQL.
 5. Crear topic y subscription de Pub/Sub.
-6. Crear secrets y configmaps.
+6. Crear secrets, configmaps y serviceaccounts.
 7. Aplicar los manifests:
    ```
    kubectl apply -f k8s/
@@ -71,11 +72,7 @@ Aplicación simple que consulta Cloud SQL y muestra los datos recientes.
 
 ## Estado Final
 - Tres microservicios corriendo en GKE.
-- Pub/Sub funcionando como bus de eventos.
+- Pub/Sub como bus de eventos.
 - Cloud SQL almacenando datos IoT.
-- Dashboard mostrando información procesada.
+- Dashboard mostrando informacion procesada.
 - Logs gestionados por Cloud Logging.
-
-## Uso
-Enviar datos de prueba en formato JSON a la API y verificar el procesamiento completo desde GKE hasta Cloud SQL y Dashboard.
-

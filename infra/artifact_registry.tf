@@ -7,6 +7,10 @@
 # 1. Repositorio principal en Artifact Registry
 ###############################################
 
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
 resource "google_artifact_registry_repository" "main" {
   repository_id = var.artifact_repo_name
   location      = var.artifact_repo_location
@@ -24,7 +28,7 @@ resource "google_artifact_registry_repository_iam_member" "gke_pull" {
   location   = google_artifact_registry_repository.main.location
 
   role   = "roles/artifactregistry.reader"
-  member = "serviceAccount:${var.project_id}.svc.id.goog"
+  member = "serviceAccount:${data.google_project.current.number}-compute@developer.gserviceaccount.com"
 }
 
 ###############################################

@@ -4,6 +4,7 @@ metadata:
   name: makeauto-config
   namespace: api
 data:
+  PROJECT_ID: "iot-k8s-petor"
   PUBSUB_TOPIC: "iot-events"
   SQL_DB_NAME: "makeauto_db"
 ---
@@ -13,6 +14,7 @@ metadata:
   name: makeauto-config
   namespace: processor
 data:
+  PROJECT_ID: "iot-k8s-petor"
   PUBSUB_SUBSCRIPTION: "iot-events-sub"
   SQL_DB_NAME: "makeauto_db"
 ---
@@ -22,4 +24,5 @@ metadata:
   name: makeauto-config
   namespace: dashboard
 data:
+  PROJECT_ID: "iot-k8s-petor"
   SQL_DB_NAME: "makeauto_db"

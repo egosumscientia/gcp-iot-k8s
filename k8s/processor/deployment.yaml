@@ -19,10 +19,17 @@ spec:
 
       containers:
         - name: processor
-          image: "<REGION>-docker.pkg.dev/<PROJECT_ID>/<REPO_NAME>/makeauto-processor:latest"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/makeauto-processor:latest"
           imagePullPolicy: Always
 
           env:
+            # ---------- PROJECT ----------
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: PROJECT_ID
+
             # ---------- CONFIGMAP ----------
             - name: PUBSUB_SUBSCRIPTION
               valueFrom:
@@ -55,7 +62,7 @@ spec:
                   name: makeauto-secrets
                   key: SQL_INSTANCE_CONNECTION_NAME
 
-          # Worker estándar → no expone puertos
+          # Worker estandar - no expone puertos
           resources:
             requests:
               cpu: "100m"

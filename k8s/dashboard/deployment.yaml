@@ -18,7 +18,7 @@ spec:
       serviceAccountName: dashboard-sa
       containers:
         - name: dashboard
-          image: "<REGION>-docker.pkg.dev/<PROJECT_ID>/<REPO_NAME>/makeauto-dashboard:latest"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/makeauto-dashboard:latest"
           imagePullPolicy: Always
 
           env:

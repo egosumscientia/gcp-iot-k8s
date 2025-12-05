@@ -1,14 +1,26 @@
 import os
+
 import psycopg2
 from fastapi import FastAPI, HTTPException
+from google.cloud.sql.connector import Connector, IPTypes
 
 # -----------------------------------------------------------
-# Environment Variables
+# Environment Variables (fail fast if missing)
 # -----------------------------------------------------------
 SQL_USER = os.getenv("SQL_USER")
 SQL_PASSWORD = os.getenv("SQL_PASSWORD")
 SQL_DB_NAME = os.getenv("SQL_DB_NAME", "makeauto_db")
 SQL_INSTANCE = os.getenv("SQL_INSTANCE_CONNECTION_NAME")
+
+required_env = {
+    "SQL_USER": SQL_USER,
+    "SQL_PASSWORD": SQL_PASSWORD,
+    "SQL_INSTANCE_CONNECTION_NAME": SQL_INSTANCE,
+}
+
+missing = [k for k, v in required_env.items() if not v]
+if missing:
+    raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
 
 # -----------------------------------------------------------
 # FastAPI App
@@ -17,21 +29,24 @@ app = FastAPI(title="makeAutomatic Dashboard Service")
 
 
 # -----------------------------------------------------------
-# DB Connection Function
+# DB Connection Function (Cloud SQL Connector)
 # -----------------------------------------------------------
+connector = Connector()
+
+
 def get_db_connection():
     """
-    Direct TCP connection to Cloud SQL instance (private IP).
+    Secure connection to Cloud SQL using instance connection name.
     """
 
-    dsn = (
-        f"host={SQL_INSTANCE} "
-        f"user={SQL_USER} "
-        f"password={SQL_PASSWORD} "
-        f"dbname={SQL_DB_NAME}"
+    return connector.connect(
+        SQL_INSTANCE,
+        "psycopg2",
+        user=SQL_USER,
+        password=SQL_PASSWORD,
+        db=SQL_DB_NAME,
+        ip_type=IPTypes.PRIVATE,
     )
-
-    return psycopg2.connect(dsn)
 
 
 # -----------------------------------------------------------
@@ -77,6 +92,14 @@ def get_latest_readings(limit: int = 20):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# -----------------------------------------------------------
+# Shutdown hook
+# -----------------------------------------------------------
+@app.on_event("shutdown")
+def close_connector():
+    connector.close()
 
 
 # -----------------------------------------------------------

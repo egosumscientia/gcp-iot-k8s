@@ -18,15 +18,28 @@ spec:
       serviceAccountName: api-sa
       containers:
         - name: api
-          image: "<REGION>-docker.pkg.dev/<PROJECT_ID>/<REPO_NAME>/makeauto-api:latest"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/makeauto-api:latest"
           imagePullPolicy: Always
           env:
+            # ----- PROJECT -----
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: PROJECT_ID
+
             # ----- CONFIGMAP -----
             - name: PUBSUB_TOPIC
               valueFrom:
                 configMapKeyRef:
                   name: makeauto-config
                   key: PUBSUB_TOPIC
+
+            - name: SQL_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: makeauto-config
+                  key: SQL_DB_NAME
 
             # ----- SECRETS -----
             - name: SQL_USER
