@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+*.coverage
+coverage.xml
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Docker
+*.tar
+docker-compose.override.yml
+
+# Kubernetes
+*.yaml.tmp
+
+# GCP / Auth
+*.json
+credentials.json
+key.json
+gcloud-service-key.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Byte-compiled
+*.orig
+
+# Node (por si dashboard usa frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# HTML builds
+dist/
+build/
+
+# Misc
+tmp/
