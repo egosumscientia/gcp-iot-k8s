@@ -108,7 +108,7 @@ variable "sql_tier" {
 variable "sql_user" {
   description = "Usuario administrador de la base"
   type        = string
-  default     = "appuser"
+  default     = "iotservice"
 }
 
 variable "sql_password" {
