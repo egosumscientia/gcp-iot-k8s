@@ -1,6 +1,6 @@
 #########################################################
 # gke.tf – Google Kubernetes Engine
-# makeAutomatic IaC – GCP
+# makeautomatic IaC – GCP
 #########################################################
 
 ###############################################
@@ -61,7 +61,7 @@ resource "google_container_cluster" "primary" {
   resource_labels = {
     env     = var.env
     project = var.project_id
-    owner   = "makeAutomatic"
+    owner   = "makeautomatic"
   }
 }
 
@@ -94,7 +94,7 @@ resource "google_container_node_pool" "primary_nodes" {
 
     labels = {
       env   = var.env
-      owner = "makeAutomatic"
+      owner = "makeautomatic"
     }
 
     tags = [

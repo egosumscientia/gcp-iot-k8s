@@ -85,6 +85,10 @@ resource "google_service_account_iam_binding" "api_wi" {
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[api/api-sa]"
   ]
+
+  depends_on = [
+    google_container_cluster.primary
+  ]
 }
 
 # Processor
@@ -95,6 +99,10 @@ resource "google_service_account_iam_binding" "processor_wi" {
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[processor/processor-sa]"
   ]
+
+  depends_on = [
+    google_container_cluster.primary
+  ]
 }
 
 # Dashboard
@@ -104,5 +112,9 @@ resource "google_service_account_iam_binding" "dashboard_wi" {
 
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[dashboard/dashboard-sa]"
+  ]
+
+  depends_on = [
+    google_container_cluster.primary
   ]
 }

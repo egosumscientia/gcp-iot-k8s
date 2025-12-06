@@ -99,3 +99,5 @@ microservices/**/__pycache__/
 ############################################
 microservices/**/build/
 microservices/**/dist/
+
+infra/.terraform.tfstate.lock.info

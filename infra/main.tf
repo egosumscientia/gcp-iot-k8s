@@ -1,5 +1,5 @@
 #########################################################
-# main.tf – makeAutomatic IaC for GCP (Terraform Root Module)
+# main.tf – makeautomatic IaC for GCP (Terraform Root Module)
 #########################################################
 
 ###############################################
@@ -13,7 +13,8 @@ resource "google_project_service" "enabled_services" {
     "sqladmin.googleapis.com",
     "pubsub.googleapis.com",
     "artifactregistry.googleapis.com",
-    "cloudresourcemanager.googleapis.com"
+    "cloudresourcemanager.googleapis.com",
+    "servicenetworking.googleapis.com"
   ])
 
   service            = each.value
@@ -28,7 +29,7 @@ locals {
   common_labels = {
     env     = var.env
     project = var.project_id
-    owner   = "makeAutomatic"
+    owner   = "makeautomatic"
   }
 }
 
