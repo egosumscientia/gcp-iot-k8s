@@ -58,6 +58,8 @@ resource "google_container_cluster" "primary" {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
+  deletion_protection = false
+
   resource_labels = {
     env     = var.env
     project = var.project_id
@@ -83,6 +85,9 @@ resource "google_container_node_pool" "primary_nodes" {
       "https://www.googleapis.com/auth/cloud-platform"
     ]
 
+    disk_size_gb = 50
+    disk_type    = "pd-standard"
+
     # Activar Workload Identity
     workload_metadata_config {
       mode = "GKE_METADATA"
@@ -104,7 +109,7 @@ resource "google_container_node_pool" "primary_nodes" {
 
   autoscaling {
     min_node_count = 1
-    max_node_count = 5
+    max_node_count = 3
   }
 
   management {

@@ -58,7 +58,7 @@ variable "gke_cluster_name" {
 variable "gke_node_count" {
   description = "Cantidad inicial de nodos del node pool"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "gke_machine_type" {
