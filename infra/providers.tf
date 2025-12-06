@@ -23,16 +23,19 @@ terraform {
 ####################################################
 
 provider "google" {
-  project = var.project_id
-  region  = var.region
-  zone    = var.zone
+  credentials = file("C:/Users/petor/terraform.json")
+  project     = var.project_id
+  region      = var.region
+  zone        = var.zone
 }
 
 provider "google-beta" {
-  project = var.project_id
-  region  = var.region
-  zone    = var.zone
+  credentials = file("C:/Users/petor/terraform.json")
+  project     = var.project_id
+  region      = var.region
+  zone        = var.zone
 }
+
 
 ####################################################
 # (Opcional, recomendado)

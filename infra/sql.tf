@@ -33,6 +33,7 @@ resource "google_sql_database_instance" "main" {
   name             = var.sql_instance_name
   region           = var.region
   database_version = var.sql_database_version
+  deletion_protection = false
 
   depends_on = [
     google_service_networking_connection.private_vpc_connection
