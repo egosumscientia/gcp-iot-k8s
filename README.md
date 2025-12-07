@@ -76,3 +76,5 @@ API simple que consulta Cloud SQL y expone lecturas recientes.
 - Cloud SQL almacenando datos IoT.
 - Dashboard mostrando informacion procesada.
 - Logs gestionados por Cloud Logging.
+
+.\destroy-terraform.ps1
