@@ -5,76 +5,64 @@ Plataforma demostrativa que procesa datos IoT con microservicios desplegados en 
 ## Objetivo
 Implementar una arquitectura funcional que:
 - Recibe datos IoT desde un cliente.
-- Los envia a Pub/Sub.
-- Los procesa mediante un microservicio worker.
+- Los envía a Pub/Sub.
+- Los procesa mediante un microservicio Worker.
 - Los guarda en Cloud SQL.
-- Los expone mediante un Dashboard en GKE.
+- Opcionalmente los expone mediante un Dashboard en GKE.
 
 ## Arquitectura
-Sensor -> API -> Pub/Sub -> Processor -> Cloud SQL -> Dashboard -> Usuario Final
+Sensor → API → Pub/Sub → Processor → Cloud SQL → Dashboard → Usuario Final
 
 ## Componentes del Proyecto
+
 ### API Service
-Microservicio en FastAPI que recibe eventos IoT via HTTP y los publica en Pub/Sub.
+Microservicio en FastAPI que recibe eventos IoT vía HTTP y los publica en Pub/Sub.
 
 ### Processor Service
-Worker en Python que consume Pub/Sub y escribe en Cloud SQL.
+Worker en Python que consume mensajes Pub/Sub y los escribe en Cloud SQL mediante Cloud SQL Python Connector utilizando el driver `pg8000`.
 
 ### Dashboard Service
-API simple que consulta Cloud SQL y expone lecturas recientes.
+Servicio HTTP que consulta Cloud SQL y expone un endpoint JSON para visualizar lecturas recientes.
 
 ### Infraestructura en GCP
 - GKE (Google Kubernetes Engine)
-- Pub/Sub (topic y subscription)
+- Pub/Sub (Topic + Subscription)
 - Cloud SQL (PostgreSQL)
-- Artifact Registry para imagenes
-- Cloud Logging y Monitoring
+- Artifact Registry para imágenes Docker
+- Cloud Logging y Cloud Monitoring
 
-## Estructura de Carpetas
-- microservices/api: codigo del servicio API
-- microservices/processor: codigo del procesador
-- microservices/dashboard: API de dashboard
-- k8s/api: manifests de Kubernetes para API
-- k8s/processor: manifests de Processor
-- k8s/dashboard: manifests de Dashboard
-- k8s/common: configmaps, secrets, serviceaccounts, namespaces
-- docs: documentacion adicional
+## Estructura del Proyecto
+- microservices/api → código del microservicio API
+- microservices/processor → código del Worker/Processor
+- microservices/dashboard → código del Dashboard
+- k8s/api → manifests Kubernetes de API
+- k8s/processor → manifests de Processor
+- k8s/dashboard → manifests del Dashboard
+- k8s/common → configmaps, secrets, namespaces, serviceaccounts y Job de inicialización de base de datos
+- infra → Terraform para red, Pub/Sub, GKE, Cloud SQL y Artifact Registry
+- docs → documentación
 
-## Flujo General
-1. El sensor envia datos JSON a la API.
-2. La API publica los datos en Pub/Sub.
-3. El Processor toma los mensajes y los escribe en Cloud SQL.
-4. El Dashboard consulta la base y los muestra en tiempo real.
-5. Kubernetes ejecuta, escala y mantiene los microservicios.
+## Inicialización Automática de la Base de Datos
 
-## Requisitos Previos
-- Google Cloud SDK
-- Docker
-- kubectl
-- Proyecto de GCP con APIs habilitadas:
-  - Kubernetes Engine API
-  - Cloud SQL Admin API
-  - Pub/Sub API
-  - Artifact Registry API
+El proyecto incluye un Job de Kubernetes (`db-init-job`), ubicado en `k8s/common`, que:
 
-## Despliegue Resumido
-1. Construir las imagenes Docker.
-2. Subirlas a Artifact Registry.
-3. Crear cluster GKE.
-4. Crear instancia Cloud SQL.
-5. Crear topic y subscription de Pub/Sub.
-6. Crear secrets, configmaps y serviceaccounts.
-7. Aplicar los manifests:
-   ```
-   kubectl apply -f k8s/
-   ```
-8. Enviar datos al endpoint `/ingest` de la API.
+- Se ejecuta automáticamente al aplicar `kubectl apply -f k8s/common`.
+- Conecta a Cloud SQL mediante Cloud SQL Python Connector.
+- Crea la tabla `iot_readings` si no existe.
+- Crea el índice optimizado para consultas por `device_id` y `timestamp`.
+- Valida cuántos registros existen.
 
-## Estado Final
-- Tres microservicios corriendo en GKE.
-- Pub/Sub como bus de eventos.
-- Cloud SQL almacenando datos IoT.
-- Dashboard mostrando informacion procesada.
-- Logs gestionados por Cloud Logging.
+El Job ejecuta el siguiente SQL:
 
-.\destroy-terraform.ps1
+```sql
+CREATE TABLE IF NOT EXISTS iot_readings (
+    id SERIAL PRIMARY KEY,
+    device_id VARCHAR(100) NOT NULL,
+    temperature FLOAT NOT NULL,
+    humidity FLOAT NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_device_timestamp 
+ON iot_readings(device_id, timestamp);
