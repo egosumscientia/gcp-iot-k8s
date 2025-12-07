@@ -58,9 +58,11 @@ resource "google_pubsub_subscription" "dlq" {
 ###############################################
 
 resource "google_pubsub_topic_iam_member" "api_publisher" {
-  topic = google_pubsub_topic.main.name
-  role  = "roles/pubsub.publisher"
-  member = "serviceAccount:${var.resource_prefix}-api-sa@${var.project_id}.iam.gserviceaccount.com"
+  topic  = google_pubsub_topic.main.name
+  role   = "roles/pubsub.publisher"
+  member = "serviceAccount:${google_service_account.api.email}"
+  
+  depends_on = [google_service_account.api]
 }
 
 ###############################################
@@ -70,5 +72,7 @@ resource "google_pubsub_topic_iam_member" "api_publisher" {
 resource "google_pubsub_subscription_iam_member" "processor_subscriber" {
   subscription = google_pubsub_subscription.main.name
   role         = "roles/pubsub.subscriber"
-  member       = "serviceAccount:${var.resource_prefix}-processor-sa@${var.project_id}.iam.gserviceaccount.com"
+  member       = "serviceAccount:${google_service_account.processor.email}"
+  
+  depends_on = [google_service_account.processor]
 }
