@@ -1,16 +1,48 @@
 ############################################
 # TERRAFORM
 ############################################
+
+# Carpetas internas
 .terraform/
+
+# Bloqueo de proveedores
 .terraform.lock.hcl
+
+# Archivos de estado
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
+
+# Logs de fallos
 crash.log
 crash.*.log
+
+# Archivos override locales
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Archivos de planes locales (NO deben subirse)
+plan.out
+*.plan
+
+# Variables sensibles locales
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+
+# Archivos generados temporalmente
+*.backup
+*.bak
+
+# Módulos empaquetados para Terraform Registry
+*.zip
+
+# Archivos de lock específicos de sistemas
+.DS_Store
+Thumbs.db
+
 
 ############################################
 # PYTHON
@@ -101,3 +133,4 @@ microservices/**/build/
 microservices/**/dist/
 
 infra/.terraform.tfstate.lock.info
+
