@@ -19,7 +19,7 @@ spec:
 
       containers:
         - name: processor
-          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/makeauto-processor:latest"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/processor:v1"
           imagePullPolicy: Always
 
           env:

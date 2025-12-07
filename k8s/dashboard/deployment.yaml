@@ -18,7 +18,7 @@ spec:
       serviceAccountName: dashboard-sa
       containers:
         - name: dashboard
-          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/makeauto-dashboard:latest"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/processor:v1"
           imagePullPolicy: Always
 
           env:
@@ -51,6 +51,11 @@ spec:
             # ---------- Runtime ----------
             - name: PORT
               value: "8080"
+            - name: PROJECT_ID
+              value: "iot-k8s-petor"
+
+            - name: PUBSUB_SUBSCRIPTION
+              value: "projects/iot-k8s-petor/subscriptions/makeauto-dashboard-sub"
 
           ports:
             - containerPort: 8080

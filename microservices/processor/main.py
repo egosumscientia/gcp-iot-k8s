@@ -3,7 +3,6 @@ import json
 import os
 import time
 
-import psycopg2
 from google.cloud import pubsub_v1
 from google.cloud.sql.connector import Connector, IPTypes
 
@@ -41,7 +40,6 @@ subscription_path = subscriber.subscription_path(PROJECT_ID, PUBSUB_SUBSCRIPTION
 # -----------------------------------------------------------
 connector = Connector()
 
-
 def get_db_connection():
     """
     Secure connection to Cloud SQL using instance connection name.
@@ -49,7 +47,7 @@ def get_db_connection():
 
     return connector.connect(
         SQL_INSTANCE,
-        "psycopg2",
+        "pg8000",                 # ← DRIVER CORRECTO
         user=SQL_USER,
         password=SQL_PASSWORD,
         db=SQL_DB_NAME,
@@ -67,10 +65,16 @@ def process_message(message):
     try:
         payload = json.loads(message.data.decode("utf-8"))
 
-        device_id = payload["device_id"]
-        temperature = payload["temperature"]
-        humidity = payload["humidity"]
-        timestamp = payload["timestamp"]
+        device_id = payload.get("device_id")
+        temperature = payload.get("temperature")
+        humidity = payload.get("humidity")
+        timestamp = payload.get("timestamp")
+
+        # Validación mínima
+        if None in (device_id, temperature, humidity, timestamp):
+            print(f"Skipping message, missing fields: {payload}")
+            message.ack()   # evitar loop infinito
+            return
 
         # Insert into Cloud SQL
         conn = get_db_connection()
@@ -78,10 +82,10 @@ def process_message(message):
 
         query = """
             INSERT INTO iot_readings (device_id, temperature, humidity, timestamp)
-            VALUES (%s, %s, %s, %s)
+            VALUES (?, ?, ?, ?)
         """
+        cur.execute(query, [device_id, temperature, humidity, timestamp])
 
-        cur.execute(query, (device_id, temperature, humidity, timestamp))
         conn.commit()
 
         cur.close()

@@ -18,7 +18,7 @@ spec:
       serviceAccountName: api-sa
       containers:
         - name: api
-          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/makeauto-api:latest"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/api:v1"
           imagePullPolicy: Always
           env:
             # ----- PROJECT -----
