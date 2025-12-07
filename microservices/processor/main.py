@@ -83,16 +83,21 @@ def process_message(message):
             # Asegura formato ISO y timezone UTC
             timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
 
-        # Insert into Cloud SQL usando cursor con 'with' y parámetros como lista
-        with get_db_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    INSERT INTO iot_readings (device_id, temperature, humidity, timestamp)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    [device_id, temperature, humidity, timestamp]
-                )
+        # Insert into Cloud SQL usando pg8000
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute(
+            """
+            INSERT INTO iot_readings (device_id, temperature, humidity, timestamp)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (device_id, temperature, humidity, timestamp)
+        )
+
+        conn.commit()
+        cur.close()
+        conn.close()
 
         print(f"Processed message for device {device_id}")
         message.ack()
