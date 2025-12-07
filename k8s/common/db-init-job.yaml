@@ -6,32 +6,89 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: processor-sa
       containers:
       - name: db-init
-        image: postgres:15
-        command: ["psql"]
+        image: python:3.11-slim
+        command: ["/bin/sh", "-c"]
         args:
-          [
-            "--host=$(DB_HOST)",
-            "--username=$(DB_USER)",
-            "--dbname=$(DB_NAME)",
-            "-f",
-            "/sql/init.sql"
-          ]
+          - |
+            pip install --no-cache-dir pg8000 cloud-sql-python-connector && \
+            python3 << 'EOPY'
+            from google.cloud.sql.connector import Connector, IPTypes
+            import os
+            
+            print("Connecting to Cloud SQL...")
+            connector = Connector()
+            
+            conn = connector.connect(
+                os.getenv("SQL_INSTANCE_CONNECTION_NAME"),
+                "pg8000",
+                user=os.getenv("SQL_USER"),
+                password=os.getenv("SQL_PASSWORD"),
+                db=os.getenv("SQL_DB_NAME"),
+                ip_type=IPTypes.PRIVATE,
+            )
+            
+            print("Connected! Creating table...")
+            cur = conn.cursor()
+            
+            # Create table
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS iot_readings (
+                    id SERIAL PRIMARY KEY,
+                    device_id VARCHAR(100) NOT NULL,
+                    temperature FLOAT NOT NULL,
+                    humidity FLOAT NOT NULL,
+                    timestamp TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            
+            # Create index
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_device_timestamp 
+                ON iot_readings(device_id, timestamp);
+            """)
+            
+            conn.commit()
+            print("Table 'iot_readings' created successfully!")
+            
+            # Verify
+            cur.execute("SELECT COUNT(*) FROM iot_readings;")
+            count = cur.fetchone()[0]
+            print(f"Current records in table: {count}")
+            
+            cur.close()
+            conn.close()
+            connector.close()
+            print("Database initialization complete!")
+            EOPY
         env:
         - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
               name: cloudsql-secret
               key: password
-        envFrom:
-        - configMapRef:
-            name: cloudsql-config
-        volumeMounts:
-        - name: sql
-          mountPath: /sql
+        - name: SQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: cloudsql-secret
+              key: username
+        - name: SQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cloudsql-secret
+              key: password
+        - name: SQL_DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: cloudsql-config
+              key: database
+        - name: SQL_INSTANCE_CONNECTION_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: cloudsql-config
+              key: instance_connection_name
       restartPolicy: Never
-      volumes:
-      - name: sql
-        configMap:
-          name: sql-init-configmap
+  backoffLimit: 3

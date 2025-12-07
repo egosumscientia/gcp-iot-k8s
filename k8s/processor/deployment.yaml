@@ -19,7 +19,7 @@ spec:
 
       containers:
         - name: processor
-          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/processor:v1"
+          image: "us-central1-docker.pkg.dev/iot-k8s-petor/makeauto-repo/processor:v2"
           imagePullPolicy: Always
 
           env:
@@ -59,18 +59,16 @@ spec:
                   name: makeauto-secrets
                   key: SQL_INSTANCE_CONNECTION_NAME
 
+            # ---------- FIX DEFINITIVO ----------
+            - name: DATABASE_URL
+              value: "postgresql+pg8000://$(SQL_USER):$(SQL_PASSWORD)@psql:5432/$(SQL_DB_NAME)"
+
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
               cpu: "200m"
-              memory: "256Mi"
-
-          livenessProbe:
-            exec:
-              command: ["sh", "-c", "ps -o pid= -p 1"]
-            initialDelaySeconds: 10
-            periodSeconds: 20
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
 
       restartPolicy: Always

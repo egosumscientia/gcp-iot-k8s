@@ -57,6 +57,8 @@ def get_db_connection():
 # -----------------------------------------------------------
 # Processing Function
 # -----------------------------------------------------------
+from datetime import datetime
+
 def process_message(message):
     """
     Callback for processing Pub/Sub messages.
@@ -76,20 +78,21 @@ def process_message(message):
             message.ack()   # evitar loop infinito
             return
 
-        # Insert into Cloud SQL
-        conn = get_db_connection()
-        cur = conn.cursor()
+        # Convertir timestamp a objeto datetime
+        if isinstance(timestamp, str):
+            # Asegura formato ISO y timezone UTC
+            timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
 
-        query = """
-            INSERT INTO iot_readings (device_id, temperature, humidity, timestamp)
-            VALUES (?, ?, ?, ?)
-        """
-        cur.execute(query, [device_id, temperature, humidity, timestamp])
-
-        conn.commit()
-
-        cur.close()
-        conn.close()
+        # Insert into Cloud SQL usando cursor con 'with' y parámetros como lista
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO iot_readings (device_id, temperature, humidity, timestamp)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    [device_id, temperature, humidity, timestamp]
+                )
 
         print(f"Processed message for device {device_id}")
         message.ack()
